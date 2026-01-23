@@ -11,6 +11,23 @@ Open-source database performance diagnosis platform with intelligent recommendat
 - 🚀 **Optimization Suggestions** - AI-powered recommendations for better performance
 - 📱 **Modern UI** - Built with Next.js 16 and Tailwind CSS
 
+---
+
+## **Tech Stack: Next.js (with modern JS tools)**
+
+| Feature | Next.js |
+|---------|--------|
+| **Data Processing** | (Arquero + Polars.js) |
+| **Statistical Analysis** | (Danfo.js) |
+| **Utilities ** | (Lodash + simple-statistics + mathjs) |
+| **ML/AI** | Later Python microservices |
+| **Visualization** | (D3.js is THE standard) |
+| **UI Quality** | (React and Tailwind with Shadcn) |
+| **Language** | (TypeScript) |
+| **Deployment** | (Vercel) |
+
+---
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
