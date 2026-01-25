@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DB Doctor",
-  description: "Universal database performance diagnosis platform",
+  title: 'DBDoctor - Database Performance Monitoring',
+  description: 'Diagnose and optimize your database performance',
 };
 
 export default function RootLayout({
