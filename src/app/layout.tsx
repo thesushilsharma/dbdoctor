@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,9 +13,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+
+
 export const metadata: Metadata = {
-  title: 'DBDoctor - Database Performance Monitoring',
-  description: 'Diagnose and optimize your database performance',
+  title: 'DBDoctor | Precision Database Diagnostics',
+  description: 'Identify slow queries, optimize indexes, and monitor database health with AI-powered insights.',
 };
 
 export default function RootLayout({
@@ -23,11 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground selection:bg-primary/30 selection:text-primary-foreground`}
       >
-        {children}
+        <main className="relative flex min-h-screen flex-col">
+          {children}
+        </main>
+        <Toaster position="top-center" expand={false} richColors closeButton />
       </body>
     </html>
   );

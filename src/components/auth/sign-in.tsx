@@ -38,20 +38,23 @@ export default function SignIn() {
 	};
 
 	return (
-		<Card className="border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10 rounded-3xl overflow-hidden">
-			<CardHeader className="space-y-2 pb-6 pt-8 text-center">
-				<CardTitle className="text-2xl font-bold bg-linear-to-r from-white to-slate-400 bg-clip-text text-transparent">
+		<Card className="group relative border-border/50 bg-card/40 backdrop-blur-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] dark:shadow-[0_32px_64px_-16px_rgba(var(--primary),0.1)] ring-1 ring-border/50 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-[0_48px_80px_-20px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_48px_80px_-20px_rgba(var(--primary),0.15)]">
+			{/* Animated accent border */}
+			<div className="absolute inset-0 p-px rounded-[2.5rem] bg-linear-to-b from-primary/30 via-transparent to-accent/30 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+			
+			<CardHeader className="relative z-10 space-y-2 pb-6 pt-10 text-center">
+				<CardTitle className="text-3xl font-black tracking-tighter bg-linear-to-b from-foreground to-muted-foreground bg-clip-text text-transparent">
 					Sign In
 				</CardTitle>
-				<CardDescription className="text-slate-400">
+				<CardDescription className="text-muted-foreground font-medium">
 					Access your performance dashboard
 				</CardDescription>
 			</CardHeader>
-			<CardContent className="px-8 pb-8">
-				<form action={handleAction} className="space-y-5">
+			<CardContent className="relative z-10 px-10 pb-10">
+				<form action={handleAction} className="space-y-6">
 					<Field>
-						<FieldContent className="space-y-1.5">
-							<FieldLabel htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">
+						<FieldContent className="space-y-2">
+							<FieldLabel htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/80 ml-1">
 								Email Address
 							</FieldLabel>
 							<Input
@@ -61,22 +64,22 @@ export default function SignIn() {
 								placeholder="name@company.com"
 								required
 								disabled={isPending}
-								className="h-12 border-white/5 bg-white/5 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-indigo-500/20 rounded-xl transition-all"
+								className="h-14 border-border/50 bg-background/30 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 rounded-2xl transition-all duration-300 font-medium"
 							/>
 						</FieldContent>
 					</Field>
 
 					<Field>
-						<FieldContent className="space-y-1.5">
+						<FieldContent className="space-y-2">
 							<div className="flex items-center justify-between px-1">
-								<FieldLabel htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-slate-500">
+								<FieldLabel htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/80">
 									Password
 								</FieldLabel>
 								<Link
 									href="#"
-									className="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
+									className="text-xs font-bold text-primary hover:text-accent transition-colors"
 								>
-									Forgot password?
+									Forgot?
 								</Link>
 							</div>
 							<Input
@@ -87,63 +90,44 @@ export default function SignIn() {
 								autoComplete="current-password"
 								required
 								disabled={isPending}
-								className="h-12 border-white/5 bg-white/5 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-indigo-500/20 rounded-xl transition-all"
+								className="h-14 border-border/50 bg-background/30 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 rounded-2xl transition-all duration-300 font-medium"
 							/>
 						</FieldContent>
 					</Field>
 
-					<div className="flex items-center space-x-3 px-1">
-						<Checkbox
-							id="remember"
-							name="remember"
-							disabled={isPending}
-							className="h-5 w-5 border-white/10 bg-white/5 data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500 rounded-md transition-all"
-						/>
-						<FieldLabel htmlFor="remember" className="text-sm font-medium text-slate-400 cursor-pointer select-none">
-							Remember this device
-						</FieldLabel>
+					<div className="flex items-center justify-between px-1">
+						<div className="flex items-center space-x-3">
+							<Checkbox
+								id="remember"
+								name="remember"
+								disabled={isPending}
+								className="h-5 w-5 border-border/50 bg-background/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-lg transition-all"
+							/>
+							<label htmlFor="remember" className="text-sm font-bold text-muted-foreground cursor-pointer select-none">
+								Stay signed in
+							</label>
+						</div>
 					</div>
 
-					{optimisticStatus && !state?.error && (
-						<div className="flex items-center justify-center gap-2 py-2">
-							<Loader2 size={14} className="animate-spin text-indigo-400" />
-							<span className="text-xs font-medium text-indigo-400 uppercase tracking-tighter">
-								{optimisticStatus}
-							</span>
-						</div>
-					)}
-
-					{state?.error && (
-						<div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 animate-in fade-in slide-in-from-top-2">
-							<FieldError className="text-center text-xs font-medium text-red-400">
-								{state.error}
-							</FieldError>
-						</div>
-					)}
-
-					<Button
-						type="submit"
-						className="relative h-12 w-full overflow-hidden bg-linear-to-r from-indigo-600 to-purple-600 font-bold text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 rounded-xl shadow-xl shadow-indigo-500/20"
-						disabled={isPending}
+					<Button 
+						type="submit" 
+						disabled={isPending} 
+						className="group/btn relative w-full h-14 bg-primary text-primary-foreground font-black text-lg rounded-2xl overflow-hidden shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] border-0"
 					>
-						{isPending ? (
-							<div className="flex items-center justify-center gap-2">
-								<Loader2 size={20} className="animate-spin" />
-								<span>Authenticating...</span>
-							</div>
-						) : (
-							<span className="flex items-center justify-center gap-2">
-								Sign In
-							</span>
-						)}
+						<span className="relative z-10 flex items-center justify-center gap-2">
+							{isPending ? (
+								<>
+									<Loader2 className="h-5 w-5 animate-spin" />
+									{optimisticStatus || "Authenticating..."}
+								</>
+							) : (
+								"Sign In to Dashboard"
+							)}
+						</span>
+						<div className="absolute inset-0 bg-linear-to-r from-primary via-accent to-primary opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 bg-[length:200%_100%] animate-shimmer" />
 					</Button>
 				</form>
 			</CardContent>
-			<CardFooter className="flex flex-col gap-4 border-t border-white/5 bg-white/2 p-6">
-				<p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-					Engineered with <span className="text-slate-300">Better-Auth</span>
-				</p>
-			</CardFooter>
 		</Card>
 	);
 }
