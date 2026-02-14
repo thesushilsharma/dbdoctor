@@ -50,13 +50,13 @@ export async function signUpAction(
 	prevState: AuthState,
 	formData: FormData
 ): Promise<AuthState> {
-	const firstName = formData.get("first-name") as string;
-	const lastName = formData.get("last-name") as string;
+	const givenName = formData.get("givenName") as string;
+	const familyName = formData.get("familyName") as string;
 	const email = formData.get("email") as string;
 	const password = formData.get("password") as string;
-	const passwordConfirmation = formData.get("password_confirmation") as string;
+	const confirmPassword = formData.get("confirmPassword") as string;
 
-	if (password !== passwordConfirmation) {
+	if (password !== confirmPassword) {
 		return { error: "Passwords do not match" };
 	}
 
@@ -65,7 +65,7 @@ export async function signUpAction(
 			body: {
 				email,
 				password,
-				name: `${firstName} ${lastName}`,
+				name: `${givenName} ${familyName}`,
 			},
 			headers: await headers(),
 		});
