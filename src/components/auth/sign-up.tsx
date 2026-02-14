@@ -32,6 +32,11 @@ export default function SignUp() {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [passwordFocused, setPasswordFocused] = useState(false);
 	const [confirmFocused, setConfirmFocused] = useState(false);
+	const [givenTouched, setGivenTouched] = useState(false);
+	const [familyTouched, setFamilyTouched] = useState(false);
+	const [emailTouched, setEmailTouched] = useState(false);
+	const [confirmTouched, setConfirmTouched] = useState(false);
+	const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 	const hasMin = password.length >= 8 && password.length <= 64;
 	const hasUpper = /[A-Z]/.test(password);
 	const hasLower = /[a-z]/.test(password);
@@ -60,6 +65,7 @@ export default function SignUp() {
 
 	const handleAction = (formData: FormData) => {
 		if (!parsed.success) {
+			setAttemptedSubmit(true);
 			return;
 		}
 		startTransition(() => {
@@ -95,8 +101,9 @@ export default function SignUp() {
 									className="h-10 border-border/50 bg-background/30 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 rounded-2xl transition-all duration-300 font-medium"
 									value={givenName}
 									onChange={(e) => setGivenName(e.target.value)}
+									onBlur={() => setGivenTouched(true)}
 								/>
-								{!parsed.success && parsed.error.issues.some(i => i.path[0] === "givenName") && (
+								{(givenTouched || attemptedSubmit) && !parsed.success && parsed.error.issues.some(i => i.path[0] === "givenName") && (
 									<FieldError>{parsed.error.issues.find(i => i.path[0] === "givenName")?.message}</FieldError>
 								)}
 							</FieldContent>
@@ -115,8 +122,9 @@ export default function SignUp() {
 									className="h-10 border-border/50 bg-background/30 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 rounded-2xl transition-all duration-300 font-medium"
 									value={familyName}
 									onChange={(e) => setFamilyName(e.target.value)}
+									onBlur={() => setFamilyTouched(true)}
 								/>
-								{!parsed.success && parsed.error.issues.some(i => i.path[0] === "familyName") && (
+								{(familyTouched || attemptedSubmit) && !parsed.success && parsed.error.issues.some(i => i.path[0] === "familyName") && (
 									<FieldError>{parsed.error.issues.find(i => i.path[0] === "familyName")?.message}</FieldError>
 								)}
 							</FieldContent>
@@ -137,8 +145,9 @@ export default function SignUp() {
 								className="h-10 border-border/50 bg-background/30 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 rounded-2xl transition-all duration-300 font-medium"
 								value={emailValue}
 								onChange={(e) => setEmailValue(e.target.value)}
+								onBlur={() => setEmailTouched(true)}
 							/>
-							{!parsed.success && parsed.error.issues.some(i => i.path[0] === "email") && (
+							{(emailTouched || attemptedSubmit) && !parsed.success && parsed.error.issues.some(i => i.path[0] === "email") && (
 								<FieldError>{parsed.error.issues.find(i => i.path[0] === "email")?.message}</FieldError>
 							)}
 						</FieldContent>
@@ -200,9 +209,9 @@ export default function SignUp() {
 									value={confirmPassword}
 									onChange={(e) => setConfirmPassword(e.target.value)}
 									onFocus={() => setConfirmFocused(true)}
-									onBlur={() => setConfirmFocused(false)}
+									onBlur={() => { setConfirmFocused(false); setConfirmTouched(true); }}
 								/>
-								{confirmFocused && !match && (
+								{(confirmTouched || attemptedSubmit) && !match && (
 									<FieldError className="text-destructive">Passwords need to match</FieldError>
 								)}
 							</FieldContent>

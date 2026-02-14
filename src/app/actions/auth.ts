@@ -4,6 +4,7 @@ import { auth } from "@/lib/better-auth/auth";
 import { headers } from "next/headers";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { loginSchema } from "@/lib/validations/auth";
 
 export type AuthState = {
 	error?: string;
@@ -18,16 +19,18 @@ export async function signInAction(
 	const password = formData.get("password") as string;
 	const rememberMe = formData.get("remember") === "on";
 
-	if (!email || !password) {
-		return { error: "Email and password are required" };
+	const parsed = loginSchema.safeParse({ email, password });
+	if (!parsed.success) {
+		const message = parsed.error.issues[0]?.message || "Invalid credentials";
+		return { error: message };
 	}
 
 	try {
 		// Better-auth server-side sign in
 		const res = await auth.api.signInEmail({
 			body: {
-				email,
-				password,
+				email: parsed.data.email,
+				password: parsed.data.password,
 				rememberMe,
 			},
 			headers: await headers(),
