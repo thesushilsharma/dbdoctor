@@ -1,18 +1,24 @@
-import {
-    betterAuth
-} from "better-auth";
+import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
+import { emailOTP } from "better-auth/plugins";
 
 export const auth = betterAuth({
-    emailAndPassword: {
-        enabled: true,
-        async sendResetPassword(data, request) {
-            // Send an email to the user with a link to reset their password
-        },
-    },
-    plugins: [
-        nextCookies(),
-    ],
-    /** if no database is provided, the user data will be stored in memory.
-     * Make sure to provide a database to persist user data **/
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+    async sendResetPassword(data, request) {},
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendOnSignIn: true,
+  },
+  plugins: [
+    emailOTP({
+      overrideDefaultEmailVerification: true,
+      async sendVerificationOTP({ email, otp, type }) {
+        console.log("sendVerificationOTP", { email, otp, type });
+      },
+    }),
+    nextCookies(),
+  ],
 });

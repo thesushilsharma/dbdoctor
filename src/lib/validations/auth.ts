@@ -34,6 +34,14 @@ export const forgotPasswordSchema = z.object({
   email: z.email("Please enter a valid email address"),
 });
 
+export const emailOtpSchema = z.object({
+  email: z.email("Please enter a valid email address").trim().toLowerCase(),
+  otp: z
+    .string()
+    .min(6, "Enter the 6-digit code")
+    .max(6, "Enter the 6-digit code"),
+});
+
 export const updatePasswordSchema = z
   .object({
     password: strongPasswordSchema,
@@ -60,3 +68,4 @@ export type SignUpFormValues = z.infer<typeof signUpSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 export type UpdatePasswordFormValues = z.infer<typeof updatePasswordSchema>;
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
+export type EmailOtpFormValues = z.infer<typeof emailOtpSchema>;
