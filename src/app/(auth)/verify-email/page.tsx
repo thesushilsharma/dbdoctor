@@ -1,8 +1,17 @@
 "use client";
 
-import { useActionState, useEffect, startTransition, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  startTransition,
+  useState,
+  useTransition,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { verifyEmailOtpAction } from "@/app/actions/auth";
+import {
+  resendVerificationOtpAction,
+  verifyEmailOtpAction,
+} from "@/app/actions/auth";
 import {
   Card,
   CardContent,
@@ -32,6 +41,7 @@ export default function VerifyEmailPage() {
   const [email, setEmail] = useState(initialEmail);
   const [otp, setOtp] = useState("");
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const [isResending, startResend] = useTransition();
 
   useEffect(() => {
     if (state?.success) {
@@ -51,6 +61,26 @@ export default function VerifyEmailPage() {
   };
 
   const isOtpInvalid = attemptedSubmit && otp.trim().length !== 6;
+
+  const handleResend = () => {
+    if (!email) {
+      toast.error("Enter your email to resend the code");
+      return;
+    }
+
+    startResend(async () => {
+      const formData = new FormData();
+      formData.set("email", email);
+
+      const res = await resendVerificationOtpAction(null, formData);
+
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Verification code resent");
+      }
+    });
+  };
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-background py-8">
@@ -136,6 +166,16 @@ export default function VerifyEmailPage() {
                   )}
                 </span>
                 <div className="absolute inset-0 bg-linear-to-r from-primary via-accent to-primary opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 bg-[length:200%_100%] animate-shimmer" />
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isPending || isResending}
+                onClick={handleResend}
+                className="w-full h-10 border-border/60 bg-background/40 text-xs font-medium"
+              >
+                {isResending ? "Resending..." : "Resend code"}
               </Button>
             </form>
           </CardContent>
