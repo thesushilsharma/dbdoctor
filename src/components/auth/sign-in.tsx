@@ -95,7 +95,7 @@ export default function SignIn() {
 									Password
 								</FieldLabel>
 								<Link
-									href="#"
+									href="/forgot-password"
 									className="text-xs font-bold text-primary hover:text-accent transition-colors"
 								>
 									Forgot?

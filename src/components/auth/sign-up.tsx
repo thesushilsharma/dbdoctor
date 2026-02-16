@@ -47,8 +47,8 @@ export default function SignUp() {
 
 	useEffect(() => {
 		if (state?.success) {
-51→			toast.success("Account created! Check your email for a verification code.");
-52→			const target = state.email
+			toast.success("Account created! Check your email for a verification code.");
+			const target = state.email
 				? `/verify-email?email=${encodeURIComponent(state.email)}`
 				: "/verify-email";
 			router.push(target);
