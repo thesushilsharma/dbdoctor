@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   resendVerificationOtpAction,
   verifyEmailOtpAction,
-} from "@/app/actions/auth";
+} from "@/lib/actions/auth.actions";
 import {
   Card,
   CardContent,

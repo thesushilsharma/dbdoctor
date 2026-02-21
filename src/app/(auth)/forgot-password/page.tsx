@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/field";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { requestPasswordResetAction } from "@/app/actions/auth";
+import { requestPasswordResetAction } from "@/lib/actions/auth.actions";
 import { forgotPasswordSchema } from "@/lib/validations/auth";
 
 export default function ForgotPasswordPage() {

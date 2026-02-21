@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useActionState, useEffect, useOptimistic, startTransition, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { signInAction } from "@/app/actions/auth";
+import { signInAction } from "@/lib/actions/auth.actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Field, FieldContent, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field";

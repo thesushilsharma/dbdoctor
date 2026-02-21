@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
-import { emailOTP } from "better-auth/plugins";
+import { admin, emailOTP } from "better-auth/plugins";
 
 export const auth = betterAuth({
   emailAndPassword: {
@@ -18,6 +18,9 @@ export const auth = betterAuth({
     sendOnSignIn: true,
   },
   plugins: [
+    admin({
+      defaultRole: "user",
+    }),
     emailOTP({
       overrideDefaultEmailVerification: true,
       async sendVerificationOTP({ email, otp, type }) {

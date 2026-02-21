@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/field";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { resetPasswordAction } from "@/app/actions/auth";
+import { resetPasswordAction } from "@/lib/actions/auth.actions";
 import { updatePasswordSchema } from "@/lib/validations/auth";
 
 export default function ResetPasswordPage() {

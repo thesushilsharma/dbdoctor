@@ -14,7 +14,7 @@ import { useActionState, useEffect, useOptimistic, startTransition, useMemo, use
 import { Loader2, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { signUpAction } from "@/app/actions/auth";
+import { signUpAction } from "@/lib/actions/auth.actions";
 import { Field, FieldContent, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field";
 import { strongPasswordSchema, signUpSchema } from "@/lib/validations/auth";
 
