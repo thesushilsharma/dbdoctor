@@ -2,6 +2,9 @@
 
 import type { LucideIcon } from "lucide-react";
 import { Activity, AlertTriangle, BarChart3, Gauge } from "lucide-react";
+import { db } from "@/db/drizzle";
+import { connectionTests, connections } from "@/schema";
+import { and, desc, eq } from "drizzle-orm";
 
 export type ConnectionDashboardMetric = {
   label: string;
@@ -74,7 +77,24 @@ export async function getConnectionDashboardDataQuery(
     },
   ];
 
-  const recentChecks: ConnectionDashboardCheck[] = [];
+  const checkRows = await db
+    .select({
+      id: connectionTests.id,
+      type: connectionTests.type,
+      summary: connectionTests.summary,
+      createdAt: connectionTests.createdAt,
+    })
+    .from(connectionTests)
+    .where(eq(connectionTests.connectionId, input.connectionId))
+    .orderBy(desc(connectionTests.createdAt))
+    .limit(10);
+
+  const recentChecks: ConnectionDashboardCheck[] = checkRows.map((row) => ({
+    id: row.id,
+    type: row.type,
+    summary: row.summary,
+    timestamp: row.createdAt?.toISOString() ?? "",
+  }));
 
   const issues: ConnectionDashboardIssue[] = [];
 
@@ -85,3 +105,92 @@ export async function getConnectionDashboardDataQuery(
   };
 }
 
+export type ConnectionSummary = {
+  id: string;
+  name: string;
+  engine: string;
+  status: "healthy" | "degraded";
+  region: string;
+};
+
+type ConnectionListQueryInput = {
+  userId: string;
+  role: string;
+};
+
+export async function getConnectionsQuery(
+  input: ConnectionListQueryInput,
+): Promise<ConnectionSummary[]> {
+  void input.role;
+
+  const rows = await db
+    .select({
+      id: connections.id,
+      name: connections.name,
+      engine: connections.engine,
+      status: connections.status,
+      region: connections.region,
+    })
+    .from(connections)
+    .where(eq(connections.ownerId, input.userId))
+    .orderBy(connections.createdAt);
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    engine: row.engine,
+    status: row.status === "degraded" ? "degraded" : "healthy",
+    region: row.region,
+  }));
+}
+
+export type ConnectionDetail = ConnectionSummary & {
+  lastCheck: string;
+};
+
+type ConnectionDetailQueryInput = {
+  id: string;
+  userId: string;
+  role: string;
+};
+
+export async function getConnectionByIdQuery(
+  input: ConnectionDetailQueryInput,
+): Promise<ConnectionDetail | null> {
+  void input.role;
+
+  const rows = await db
+    .select({
+      id: connections.id,
+      name: connections.name,
+      engine: connections.engine,
+      status: connections.status,
+      region: connections.region,
+      createdAt: connections.createdAt,
+      updatedAt: connections.updatedAt,
+    })
+    .from(connections)
+    .where(
+      and(
+        eq(connections.id, input.id),
+        eq(connections.ownerId, input.userId),
+      ),
+    )
+    .orderBy(desc(connections.updatedAt))
+    .limit(1);
+
+  const row = rows[0];
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    name: row.name,
+    engine: row.engine,
+    status: row.status === "degraded" ? "degraded" : "healthy",
+    region: row.region,
+    lastCheck: row.updatedAt?.toISOString() ?? "Unknown",
+  };
+}

@@ -1,5 +1,6 @@
+import { Activity, PlusCircle } from "lucide-react";
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -8,8 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { listConnections } from "@/lib/actions/connections.actions";
 
-export default function ConnectionsPage() {
+export default async function ConnectionsPage() {
+  const connections = await listConnections();
+
   return (
     <div className="space-y-10">
       <section className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -36,20 +40,59 @@ export default function ConnectionsPage() {
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Card className="border-border/70 bg-card/70 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold tracking-tight">
-              Connections
-            </CardTitle>
-            <CardDescription className="text-xs font-medium text-muted-foreground">
-              Your existing database connections will appear here with health
-              and latency summaries.
-            </CardDescription>
+          <CardHeader className="flex items-center justify-between gap-3">
+            <div>
+              <CardTitle className="text-base font-semibold tracking-tight">
+                Connections
+              </CardTitle>
+              <CardDescription className="text-xs font-medium text-muted-foreground">
+                Your database connections with health and latency summaries.
+              </CardDescription>
+            </div>
+            <Badge variant="outline" className="text-[10px] uppercase">
+              {connections.length} total
+            </Badge>
           </CardHeader>
           <CardContent>
-            <div className="rounded-xl border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
-              No connections yet. Create your first connection to start
-              streaming metrics and running health checks across your databases.
-            </div>
+            {connections.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
+                No connections yet. Create your first connection to start
+                streaming metrics and running health checks across your
+                databases.
+              </div>
+            ) : (
+              <div className="divide-y divide-border/70 rounded-xl border border-border/70 bg-muted/20">
+                {connections.map((connection) => (
+                  <Link
+                    key={connection.id}
+                    href={`/connections/${connection.id}`}
+                    className="flex items-center justify-between gap-3 px-4 py-3 text-sm transition-colors hover:bg-muted/60"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Activity className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{connection.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {connection.engine} • {connection.region}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={
+                        connection.status === "healthy"
+                          ? "secondary"
+                          : "destructive"
+                      }
+                      className="text-[10px] uppercase"
+                    >
+                      {connection.status === "healthy" ? "Healthy" : "Degraded"}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

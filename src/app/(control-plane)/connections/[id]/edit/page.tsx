@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getConnectionById, updateConnectionAction } from "@/lib/actions/connections.actions";
 
 export default async function EditConnectionPage({
   params,
@@ -8,12 +9,13 @@ export default async function EditConnectionPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const connection = await getConnectionById(id);
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold tracking-tight">
-          Edit connection {id}
+          Edit connection {connection?.name ?? id}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Update display name and connection string for this database.
@@ -27,7 +29,8 @@ export default async function EditConnectionPage({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4">
+          <form action={updateConnectionAction} className="space-y-4">
+            <input type="hidden" name="connectionId" value={id} />
             <div className="space-y-1.5">
               <label
                 htmlFor="name"
@@ -39,6 +42,7 @@ export default async function EditConnectionPage({
                 id="name"
                 name="name"
                 placeholder="Production Postgres"
+                defaultValue={connection?.name}
                 className="h-9"
               />
             </div>
@@ -58,7 +62,11 @@ export default async function EditConnectionPage({
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" type="button" className="h-8 px-3 text-xs">
+              <Button
+                variant="outline"
+                type="button"
+                className="h-8 px-3 text-xs"
+              >
                 Cancel
               </Button>
               <Button type="submit" className="h-8 px-3 text-xs">
