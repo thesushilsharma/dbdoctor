@@ -1,6 +1,9 @@
+import { desc, eq } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { db } from "@/db/drizzle";
+import { connectionTests } from "@/schema";
 import { getConnectionById, testConnectionAction } from "@/lib/actions/connections.actions";
 
 export default async function TestConnectionPage({
@@ -10,6 +13,19 @@ export default async function TestConnectionPage({
 }) {
   const { id } = await params;
   const connection = await getConnectionById(id);
+
+  const lastTestRows = await db
+    .select({
+      status: connectionTests.status,
+      latencyMs: connectionTests.latencyMs,
+      createdAt: connectionTests.createdAt,
+    })
+    .from(connectionTests)
+    .where(eq(connectionTests.connectionId, id))
+    .orderBy(desc(connectionTests.createdAt))
+    .limit(1);
+
+  const lastTest = lastTestRows[0];
 
   return (
     <div className="space-y-6">
@@ -47,12 +63,31 @@ export default async function TestConnectionPage({
           </form>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>
-            Status:{" "}
-            <span className="font-medium text-emerald-500">Healthy</span>
-          </p>
-          <p>Round-trip latency: 38 ms</p>
-          <p>Last run: a few seconds ago</p>
+          {lastTest ? (
+            <>
+              <p>
+                Status:{" "}
+                <span
+                  className={
+                    lastTest.status === "healthy"
+                      ? "font-medium text-emerald-500"
+                      : "font-medium text-red-500"
+                  }
+                >
+                  {lastTest.status === "healthy" ? "Healthy" : "Degraded"}
+                </span>
+              </p>
+              <p>Round-trip latency: {lastTest.latencyMs} ms</p>
+              <p>
+                Last run:{" "}
+                {lastTest.createdAt
+                  ? lastTest.createdAt.toISOString()
+                  : "Unknown"}
+              </p>
+            </>
+          ) : (
+            <p>No tests have been run for this connection yet.</p>
+          )}
         </CardContent>
       </Card>
     </div>

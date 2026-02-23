@@ -1,37 +1,77 @@
 import { Activity, Database, Gauge, Sparkles } from "lucide-react";
+import { headers } from "next/headers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DbSmokeTest } from "@/components/db-smoke-test";
+import { auth } from "@/lib/better-auth/auth";
+import { getConnectionsQuery } from "@/db/queries/data.queries";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  const user = session?.user;
+
+  const connections =
+    user == null
+      ? []
+      : await getConnectionsQuery({
+          userId: user.id,
+          role: (user.role as string) || "user",
+        });
+
+  const totalConnections = connections.length;
+  const degradedConnections = connections.filter(
+    (connection) => connection.status === "degraded",
+  ).length;
+  const healthyConnections = totalConnections - degradedConnections;
+
+  const averageHealth =
+    totalConnections === 0
+      ? "–"
+      : String(Math.round((healthyConnections / totalConnections) * 100));
+
   const overviewCards = [
     {
       label: "Active Connections",
-      value: "3",
-      trend: "+1 this week",
+      value: String(totalConnections),
+      trend:
+        totalConnections === 0
+          ? "No connections configured yet"
+          : `${healthyConnections} healthy, ${degradedConnections} degraded`,
       icon: Database,
       accent: "from-chart-2/70 to-chart-4/70",
     },
     {
       label: "Average Health Score",
-      value: "92",
-      trend: "Stable",
+      value: averageHealth,
+      trend:
+        totalConnections === 0
+          ? "Add a connection to start measuring health"
+          : "Computed from connection status",
       icon: Gauge,
       accent: "from-emerald-500/70 to-chart-1/70",
     },
     {
       label: "Open Issues",
-      value: "7",
-      trend: "2 critical",
+      value: String(degradedConnections),
+      trend:
+        degradedConnections === 0
+          ? "All connections currently healthy"
+          : `${degradedConnections} connection${
+              degradedConnections === 1 ? "" : "s"
+            } needs attention`,
       icon: Activity,
       accent: "from-destructive/70 to-amber-500/70",
     },
     {
       label: "AI Insights Generated",
-      value: "24",
-      trend: "Last 24 hours",
+      value: "0",
+      trend: "Coming soon",
       icon: Sparkles,
       accent: "from-primary/70 to-accent/70",
     },
-  ];
+  ] as const;
 
   return (
     <div className="space-y-10">
@@ -102,24 +142,28 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/70 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold tracking-tight">
-              Getting Started
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm text-muted-foreground">
-            <p>
-              Connect a database to start streaming performance metrics and
-              query plans into DBDoctor.
-            </p>
-            <ul className="space-y-2">
-              <li>• Add your first connection from the Connections page</li>
-              <li>• Run an initial health check to baseline performance</li>
-              <li>• Review AI recommendations for index and query tuning</li>
-            </ul>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <Card className="border-border/70 bg-card/70 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-base font-semibold tracking-tight">
+                Getting Started
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm text-muted-foreground">
+              <p>
+                Connect a database to start streaming performance metrics and
+                query plans into DBDoctor.
+              </p>
+              <ul className="space-y-2">
+                <li>• Add your first connection from the Connections page</li>
+                <li>• Run an initial health check to baseline performance</li>
+                <li>• Review AI recommendations for index and query tuning</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <DbSmokeTest />
+        </div>
       </section>
     </div>
   );

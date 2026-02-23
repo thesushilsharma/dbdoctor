@@ -1,5 +1,6 @@
-import { Activity, PlusCircle } from "lucide-react";
 import Link from "next/link";
+import { Activity, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -8,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { listConnections } from "@/lib/actions/connections.actions";
 
 export default async function ConnectionsPage() {

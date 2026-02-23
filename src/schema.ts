@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { pgEnum, pgPolicy, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  pgEnum,
+  pgPolicy,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const connectionStatusEnum = pgEnum("connection_status", [
   "healthy",
