@@ -122,31 +122,116 @@ export default async function ConnectionDashboardPage({
         <Card className="border-border/70 bg-card/70 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base font-semibold tracking-tight">
-              Workload profile
+              Latency over time
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>
-              This connection is currently classified as a mixed read/write
-              workload with bursty traffic. Query analysis and index tuning
-              recommendations will adapt to this profile as telemetry is
-              collected.
-            </p>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            {data.latencyTimeline.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border/70 bg-muted/40 p-4 text-xs">
+                No latency telemetry yet. Run a baseline check to see latency over time.
+              </div>
+            ) : (
+              <>
+                <p className="text-xs">
+                  Average round-trip latency per minute for recent checks.
+                </p>
+                <div className="mt-1 flex h-32 items-end gap-1">
+                  {(() => {
+                    const maxAvg =
+                      data.latencyTimeline.reduce(
+                        (max, bucket) =>
+                          bucket.avgLatency > max ? bucket.avgLatency : max,
+                        0,
+                      ) || 0;
+
+                    return data.latencyTimeline.map((bucket) => {
+                      const ratio =
+                        maxAvg > 0 ? bucket.avgLatency / maxAvg : 0;
+                      const height = `${Math.max(
+                        4,
+                        Math.round(ratio * 100),
+                      )}%`;
+
+                      return (
+                        <div
+                          key={bucket.bucketStart.toISOString()}
+                          className="flex flex-1 flex-col items-center gap-1"
+                        >
+                          <div
+                            className="w-full rounded-t-md bg-primary/70"
+                            style={{ height }}
+                          />
+                          <span className="hidden text-[10px] text-muted-foreground md:block">
+                            {bucket.bucketStart.toLocaleTimeString(
+                              undefined,
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </span>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
         <Card className="border-border/70 bg-card/70 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base font-semibold tracking-tight">
-              Next steps
+              Latency distribution
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <ul className="space-y-1.5">
-              <li>• Run a baseline performance check for this connection</li>
-              <li>• Review slow queries under the Queries tab</li>
-              <li>• Apply suggested indexes and re‑run the workload</li>
-            </ul>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            {data.latencyHistogram.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border/70 bg-muted/40 p-4 text-xs">
+                No latency telemetry yet. Histogram will appear once checks have been recorded.
+              </div>
+            ) : (
+              <>
+                <p className="text-xs">
+                  Distribution of observed latency across recent checks.
+                </p>
+                <div className="mt-1 flex h-32 items-end gap-1">
+                  {(() => {
+                    const maxCount =
+                      data.latencyHistogram.reduce(
+                        (max, bin) =>
+                          bin.count > max ? bin.count : max,
+                        0,
+                      ) || 0;
+
+                    return data.latencyHistogram.map((bin, index) => {
+                      const ratio =
+                        maxCount > 0 ? bin.count / maxCount : 0;
+                      const height = `${Math.max(
+                        4,
+                        Math.round(ratio * 100),
+                      )}%`;
+
+                      return (
+                        <div
+                          key={`${bin.start}-${bin.end}-${index}`}
+                          className="flex flex-1 flex-col items-center gap-1"
+                        >
+                          <div
+                            className="w-full rounded-t-md bg-chart-2/70"
+                            style={{ height }}
+                          />
+                          <span className="hidden text-[10px] text-muted-foreground md:block">
+                            {Math.round(bin.start)}–{Math.round(bin.end)} ms
+                          </span>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </section>

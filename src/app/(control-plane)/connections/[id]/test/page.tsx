@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +16,11 @@ export default async function TestConnectionPage({
   const { id } = await params;
   const connection = await getConnectionById(id);
 
-  const lastTestRows = await db
+  if (!connection) {
+    notFound();
+  }
+
+  const recentTestRows = await db
     .select({
       status: connectionTests.status,
       latencyMs: connectionTests.latencyMs,
@@ -23,22 +29,22 @@ export default async function TestConnectionPage({
     .from(connectionTests)
     .where(eq(connectionTests.connectionId, id))
     .orderBy(desc(connectionTests.createdAt))
-    .limit(1);
+    .limit(5);
 
-  const lastTest = lastTestRows[0];
+  const lastTest = recentTestRows[0];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold tracking-tight">
-            Test connection {connection?.name ?? id}
+            Test connection {connection.name}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Run a basic connectivity and latency check against this database.
           </p>
         </div>
-        {connection && (
+        <div className="flex items-center gap-3">
           <Badge
             variant={
               connection.status === "healthy" ? "secondary" : "destructive"
@@ -47,7 +53,13 @@ export default async function TestConnectionPage({
           >
             {connection.status === "healthy" ? "Healthy" : "Degraded"}
           </Badge>
-        )}
+          <Link
+            href={`/connections/${id}`}
+            className="rounded-full border border-border/70 bg-background/70 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/40"
+          >
+            Back to details
+          </Link>
+        </div>
       </div>
 
       <Card className="border-border/70 bg-card/70 shadow-sm">
@@ -62,9 +74,9 @@ export default async function TestConnectionPage({
             </Button>
           </form>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
           {lastTest ? (
-            <>
+            <div className="space-y-2">
               <p>
                 Status:{" "}
                 <span
@@ -81,12 +93,38 @@ export default async function TestConnectionPage({
               <p>
                 Last run:{" "}
                 {lastTest.createdAt
-                  ? lastTest.createdAt.toISOString()
+                  ? lastTest.createdAt.toLocaleString()
                   : "Unknown"}
               </p>
-            </>
+            </div>
           ) : (
             <p>No tests have been run for this connection yet.</p>
+          )}
+
+          {recentTestRows.length > 1 && (
+            <div className="mt-3 space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Recent tests
+              </p>
+              <ul className="space-y-1.5 text-xs">
+                {recentTestRows.map((test) => (
+                  <li
+                    key={`${test.createdAt?.getTime() ?? "unknown"}-${test.status}-${test.latencyMs}`}
+                    className="flex items-center justify-between"
+                  >
+                    <span>
+                      {test.status === "healthy" ? "Healthy" : "Degraded"} •{" "}
+                      {test.latencyMs} ms
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {test.createdAt
+                        ? test.createdAt.toLocaleString()
+                        : "Unknown"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </CardContent>
       </Card>
